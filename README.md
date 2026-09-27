@@ -13,6 +13,7 @@ Agent skills I use with Claude Code and Codex, written to work for anyone.
 | [`instructions-setup`](skills/instructions-setup/SKILL.md) | Set up a repo's agent instructions: AGENTS.md as the one instructions file, CLAUDE.md importing it, a decision log, and optionally a GitHub Issues roadmap and a release system (release-please or hand-cut) |
 | [`interview`](skills/interview/SKILL.md) | Interview the user through the harness's structured question tool before acting on anything that leaves room to guess |
 | [`pr-body-md`](skills/pr-body-md/SKILL.md) | Write the body for a PR being opened, from the branch's commits, diff, and changelog or release notes |
+| [`repo-setup`](skills/repo-setup/SKILL.md) | Create a repo, or put a local folder on GitHub, set up from its first commit: scaffold and one check command, license, README with a generated logo, CI, Dependabot, protected default branch, then `instructions-setup`; and take a private repo public later |
 
 ### The relay workflow
 

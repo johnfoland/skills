@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [<default branch>]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # The job name is the required status check on the default branch, so
+    # rename it only together with the branch protection.
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Set up the toolchain from the version the repo pins, e.g.
+      #   astral-sh/setup-uv                      (Python, reads the lockfile)
+      #   actions/setup-node  node-version-file   (Node, .node-version)
+      #   actions/setup-go    go-version-file     (Go, go.mod)
+      #   dtolnay/rust-toolchain                  (Rust, rust-toolchain.toml)
+      # Use each action's current major version.
+      - run: <install locked dependencies>
+      - run: <check command>
