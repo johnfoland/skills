@@ -71,3 +71,7 @@ Skills say *how* to do something and stay generic. Anything personal — a
 repo name, a machine path, a preference — belongs in the user's own
 instructions (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`), and a skill that
 needs such a fact defers to them rather than naming it.
+
+## License
+
+MIT; see [LICENSE](LICENSE).
