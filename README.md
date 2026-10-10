@@ -10,7 +10,6 @@ Agent skills I use with Claude Code and Codex, written to work for anyone.
 | Skill | What it does |
 |---|---|
 | [`chezmoi-edit`](skills/chezmoi-edit/SKILL.md) | Edit chezmoi-managed dotfiles through `chezmoi edit --apply` with a scripted editor you can dry-run first, with or without autoCommit/autoPush |
-| [`instructions-setup`](skills/instructions-setup/SKILL.md) | Set up a repo's agent instructions: AGENTS.md as the one instructions file, CLAUDE.md importing it, a decision log, and optionally a GitHub Issues roadmap and a release system (release-please or hand-cut) |
 | [`interview`](skills/interview/SKILL.md) | Interview the user through the harness's structured question tool before acting on anything that leaves room to guess |
 | [`pr-body-md`](skills/pr-body-md/SKILL.md) | Write the body for a PR being opened, from the branch's commits, diff, and changelog or release notes |
 
