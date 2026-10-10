@@ -250,6 +250,7 @@ branch and confirm `.relay/` is intact.
 
 Report the settings chosen, the files created or adopted, where a migration's
 archive is, the baseline sections changed, anything moved out of retired local
-skills and where it went, and any repository setting left for the user. Close with the next step:
-*"In a fresh session at this repo, run `/relay-project <idea>` to shape the
-first project, or `/relay-next` with a small, already-designed fix."*
+skills and where it went, and any repository setting left for the user. Close
+with the next step: *"In a fresh session at this repo, run
+`/relay-project <idea>` to shape the first project, or `/relay-next` with a
+small, already-designed fix."*
