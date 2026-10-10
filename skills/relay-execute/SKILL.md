@@ -1,6 +1,6 @@
 ---
 name: relay-execute
-description: Build the chunk in flight as the relay workflow's executor. With no argument it finds the chunk named in the repo's status file (docs/status.md by default); with an ID it runs that chunk's brief (docs/chunks/<ID>.md). Opens the chunk branch and a draft pull request, reads the brief's kickoff notes and the review-checklist entries they name, builds each unit with tests, runs the repo's gate, adds changelog entries where the repo keeps them, commits and pushes per unit, logs any decision the docs do not cover, writes the report into the chunk file, marks the pull request ready, and hands off to review. Use in a repo whose AGENTS.md has a "Relay workflow" section, for "/relay-execute", "/relay-execute P0002-C03", "execute the next chunk", "pick up the executor work", or "resume the chunk".
+description: Build the chunk in flight as the relay workflow's executor. With no argument it finds the chunk named in the repo's local status file (.relay/status.md by default); with an ID it runs that chunk's brief (.relay/chunks/<ID>.md). Opens the chunk branch and a draft pull request, reads the brief's kickoff notes and the review-checklist entries they name, builds each unit with tests, runs the repo's gate, adds changelog entries where the repo keeps them, commits and pushes per unit, logs any decision the docs do not cover, writes the report into the chunk file and the pull request body, marks the pull request ready, and hands off to review. Use in a repo whose AGENTS.md has a "Relay workflow" section, for "/relay-execute", "/relay-execute P0002-C03", "execute the next chunk", "pick up the executor work", or "resume the chunk".
 ---
 
 # Execute a chunk
@@ -25,10 +25,18 @@ written by `relay-setup`. If there is none, stop and suggest running
 - **Issues** says whether the repo tracks ideas and follow-ups as GitHub
   issues.
 - The status file, chunk briefs, decision log, and review checklist are written
-  at their default paths: `docs/status.md`, `docs/chunks/<ID>.md`,
+  at their default paths: `.relay/status.md`, `.relay/chunks/<ID>.md`,
   `docs/decisions.md` (entries cited as `DEC-n`), and
-  `docs/review-checklist.md`. When the settings map any of them elsewhere, or
+  `.relay/review-checklist.md`. When the settings map any of them elsewhere, or
   give the decision log another ID prefix, use the mapped path and prefix.
+
+The process files under `.relay/` are local and git-ignored. There is one copy
+of each, in the main working tree (the first path `git worktree list` prints),
+whatever branch is checked out; edit them in place and never commit them. The
+decision log is tracked. Tracked files (code, docs, the decision log, the
+changelog, and the pull request title that reaches `<integration>`) never cite
+a chunk ID, the brief, a review finding, or a checklist entry: cite the
+authority section, the decision ID, the issue, or the pull request.
 
 One chunk is one branch `chunk/<lowercase-id>` and one pull request into
 `<integration>`. You never commit to `<integration>`, or to a separate release
@@ -44,9 +52,10 @@ The invocation may carry a chunk ID. First establish the state:
    predates the pull, and a rule that just landed is the one most likely to be
    missed. Then look for an open pull request whose head is a `chunk/<id>`
    branch (`gh pr list --state open --base <integration>`). If one exists,
-   check out that head branch: its copy of the status file holds the
-   authoritative **In flight** block. If none exists, read the status file on
-   `<integration>`.
+   check out that head branch. Read the **In flight** block of the status
+   file; it is the same file on every branch. If it disagrees with what
+   `gh pr list` and the branches show (a pull request it does not name, a
+   branch that does not exist), say so and trust the remote for what exists.
 
 The **In flight** block has exactly this shape:
 
@@ -89,13 +98,14 @@ a value; the pull request number carries `(draft)` or `(ready)`.
     fix. Fix them on the same branch as one commit `<ID>-rework: <what>` (one
     per finding if they are independent), with the gate, a test that pins each
     fix, the gate line, and the changelog rule as for any unit. Append
-    `### Rework` to the `## Report` (date, commit SHAs, one line per finding
-    on what changed), set `State` to `awaiting review`, and hand off exactly as
-    in §5. The review then repeats on the rework diff.
+    `### Rework` to the `## Report` and to the pull request body (date, commit
+    SHAs, one line per finding on what changed), set `State` to
+    `awaiting review`, and hand off exactly as in §5. The review then repeats
+    on the rework diff.
 
 Treat the chunk ID as opaque. Project chunks (`P####-C##`), standalone
 maintenance chunks (`FYYYYMMDD-NN`), and any older scheme the repo used all
-resolve to the same `docs/chunks/<ID>.md` path and use the same state machine.
+resolve to the same `.relay/chunks/<ID>.md` path and use the same state machine.
 Do not infer work from the prefix or add fields to the In-flight block.
 
 ### Open the branch and the draft pull request
@@ -112,17 +122,17 @@ pull request exists yet:
    locally, such as a race, is inherited by your branch: name it in the pull
    request before your first unit rather than discovering it on your own CI.
 2. Create `chunk/<lowercase-id>` from `<integration>` (`P0002-C03` →
-   `chunk/p0002-c03`). On it, set `State` to `executing`, fill `Branch`, set
-   `Pull request` to `pending`, commit `<ID>: open chunk`, and push the branch.
+   `chunk/p0002-c03`). A pull request needs a commit to open, so make an empty
+   one (`git commit --allow-empty -m "<ID>: open chunk"`) and push the branch.
+   In the status file, set `State` to `executing` and fill `Branch`.
 3. Open a **draft** pull request into `<integration>`
-   (`gh pr create --draft --base <integration>`), titled for the chunk, its
-   body linking the chunk file and carrying no design decision that is not
-   already in the repo docs. Unit work may now begin. There is no second
-   bookkeeping commit: unit `a`'s commit replaces `pending` with `#NN (draft)`
-   in the In-flight block, and both relay roles discover the pull request
-   through `gh pr list` regardless of what the committed copy says. If the
-   repo's CI skips drafts (the **CI** setting says), your local gate is the
-   only check until you mark the pull request ready, so never skip it.
+   (`gh pr create --draft --base <integration>`), titled for what the chunk
+   delivers, its body saying in a few lines what the chunk builds and carrying
+   no design decision that is not already in the repo docs. Do not link the
+   chunk file: it is not in the repository. Set the status file's
+   `Pull request` to `#NN (draft)`. Unit work may now begin. If the repo's CI
+   skips drafts (the **CI** setting says), your local gate is the only check
+   until you mark the pull request ready, so never skip it.
 
 The pipeline state is now visible to anyone who looks. The `chunk/<id>` branch
 carries `<integration>`'s tree until unit `a` changes something: do not re-run
@@ -131,7 +141,7 @@ the gate before then.
 ## 1. Orient (do not skip)
 
 1. Read AGENTS.md if it is not already loaded, then the brief
-   `docs/chunks/<ID>.md` top to bottom. Its **Kickoff notes** are the
+   `.relay/chunks/<ID>.md` top to bottom. Its **Kickoff notes** are the
    planner's distillation of what is tricky, what to read most carefully, and
    what the reviewer will check. Read them first and keep them in mind
    throughout. They name the review-checklist entries this chunk is most
@@ -171,18 +181,18 @@ For each remaining unit in the brief, in order:
    machinery. A hook may enforce this in some harnesses; apply the rule
    yourself either way. **release-please:** never edit the changelog or a
    version; the pull request title carries the change (§5).
-5. Update `Units committed` in the status file (e.g. `a, b`). On unit `a`, also
-   replace the In-flight block's `Pull request: pending` with `#NN (draft)`.
-6. Commit. The title comes from the unit
+5. Commit. The title comes from the unit
    (`P0002-C03-a: config loader — schema, defaults, validation`); the body says
    what and why and cites docs, and ends with the line `<gate>: green` (for
    example `make check: green`), stating that step 3 passed on this commit's
    tree. Otherwise follow the repo's commit-message rules; unit titles keep
    this form even under release-please, which reads only the squash commit.
-   The changelog and status-file lines ride in the same commit. The reviewer
-   checks for the gate line on every unit commit, so write it only when it is
-   true.
-7. Push the branch and record the SHA for the report. A unit landed on top of
+   The changelog line rides in the same commit; the status file never does.
+   The body cites doc sections and decision IDs, not the brief or a checklist
+   entry. The reviewer checks for the gate line on every unit commit, so write
+   it only when it is true.
+6. Push the branch, record the SHA for the report, and update
+   `Units committed` in the status file (e.g. `a, b`). A unit landed on top of
    a red predecessor is a violation even once the branch is green again, and
    because the branch's history is never rewritten it cannot be tidied away
    afterwards. If the gate or CI goes red after a push (a flake that passed
@@ -192,10 +202,12 @@ For each remaining unit in the brief, in order:
 ## 3. When the docs do not cover something
 
 - Add an entry to the decision log: the next unused ID, the decision, the
-  reasoning, "Added during <ID>-<unit>", and where the rule now lives.
+  reasoning, its origin by date and pull request ("Added YYYY-MM-DD in #NN",
+  never the chunk ID: the log is tracked), and where the rule now lives.
 - Update the doc(s) that should have said it, so the next reader finds the
   rule where they expect it.
-- Cite the decision at the code site.
+- Cite the decision at the code site, by its ID and the doc section, never by
+  the chunk or a checklist entry.
 - **Never reopen a decided entry.** If a decision looks wrong, implement it as
   written and flag it under *Doc inconsistencies* in the report. The one
   exception is a decision that cannot be implemented as written: decide the
@@ -210,8 +222,8 @@ For each remaining unit in the brief, in order:
   only as a dirty working tree. Keep a unit's work in its one commit and push
   as soon as it is green; never commit a half-built unit to save it.
 - If blocked (a failing precondition, an unimplementable rule, a tool you
-  cannot install), stop, commit what is green with `Units committed` accurate,
-  push the branch, leave `State` as `executing`, and append a
+  cannot install), stop, commit and push what is green, make `Units committed`
+  accurate, leave `State` as `executing`, and append a
   **`## Partial report`** to the chunk file. Not `## Report`: that means the
   chunk is done and makes a fresh `/relay-execute` refuse the ID. Say exactly
   which unit you stopped at and why. A resumed session continues from
@@ -220,34 +232,34 @@ For each remaining unit in the brief, in order:
 ## 5. Report and hand off
 
 Run the full verification the brief requires. Append the report below to the
-chunk file (if an earlier session left a `## Partial report`, replace it). In
-the status file on the chunk branch, set `State` to `awaiting review` and the
-pull request's `(draft)` to `(ready)`, leaving `Branch` and `Pull request` in
-place. Commit `<ID>: executor report` and push. Then, in order:
+chunk file (if an earlier session left a `## Partial report`, replace it).
+Neither the report nor the status file is committed. Then, in order:
 
 1. Write the pull request body from the report
-   (`gh pr edit <NN> --body-file …`), keeping the link to the chunk file, so
-   the pull request page describes the change without a trip into the repo.
+   (`gh pr edit <NN> --body-file …`). It is the chunk's only remote record, so
+   it must stand alone: what landed, what the tests pin, decisions made (by
+   decision ID), and doc inconsistencies found, with no link to or citation of
+   the chunk file, the brief, or a checklist entry.
    If the `pr-body-md` skill is available, follow its rules for the body,
    drawing on the report rather than a fresh read of the diff. If the brief
    names issues the chunk resolves, the body closes them (`Fixes #N`). Make
-   sure the title names the chunk and what it delivered: it becomes the squash
-   commit's subject on `<integration>`. Under release-please it is also a
-   Conventional Commit whose type fits the whole chunk's user-visible effect,
-   with the chunk ID at the end: `feat(config): layered config loading
-   (P0002-C03)`, `fix!: …` for a breaking change. A chunk with no
+   sure the title names what the chunk delivered, without the chunk ID: it
+   becomes the squash commit's subject on `<integration>`. Under
+   release-please it is also a Conventional Commit whose type fits the whole
+   chunk's user-visible effect: `feat(config): layered config loading`,
+   `fix!: …` for a breaking change. A chunk with no
    user-visible effect is `refactor:`, `test:`, `docs:`, or `chore:`, and
    releases nothing on its own.
-2. `gh pr ready <NN>`.
+2. `gh pr ready <NN>`. In the status file, set `State` to `awaiting review`
+   and the pull request's `(draft)` to `(ready)`, leaving `Branch` and
+   `Pull request` in place.
 3. If the repo has CI, wait for the pull request's run
    (`gh pr checks <NN> --watch`). The handoff is not complete until the head
    commit is green: a race the unit runs passed by luck can still fail here.
    If it is red, re-run it once (`gh run rerun <id> --failed`); a pass names a
    flake, with the failing test and the run id, under the report's *Notes*. A
-   second red is fixed as its own commit, said so under *Notes*, and waited on
-   again. A green run needs no commit: the report cannot name a run that starts
-   after it, the reviewer reads the checks from the pull request, and a commit
-   made only to record a run id starts another run.
+   second red is fixed as its own commit, said so under *Notes* (in the chunk
+   file and the pull request body), and waited on again.
 4. Print the same report in chat and close with: *"In a fresh session at this
    repo, run `/relay-next`."*
 

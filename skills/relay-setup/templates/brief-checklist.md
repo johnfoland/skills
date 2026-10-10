@@ -13,8 +13,10 @@ belongs here. Most entries are found in review, because that is when a brief's
 error becomes visible; the provenance names the chunk whose brief carried it.
 
 **How it is used.** `/relay-next` takes each draft brief through every entry
-here before committing it. A fix that matches an entry cites it as
-`brief-checklist §N` in the review or the chunk ledger. `/relay-execute` does
+here before setting it ready for an executor. A fix that matches an entry
+cites it as `brief-checklist §N` in the review or the chunk ledger, never in a
+tracked file: like every relay process file, this one is local and
+git-ignored. `/relay-execute` does
 not read this file: an executor builds the brief it is given.
 
 **How it grows.** When a review finds that the *brief* was wrong rather than

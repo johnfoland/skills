@@ -7,7 +7,10 @@ where a passing test suite has failed to catch a real defect.
 
 **How it is used.** `/relay-next` takes the whole chunk diff through every
 entry here, after the per-unit checks against the cited doc sections. A finding
-that matches an entry cites it as `review-checklist §N`. `/relay-execute` does
+that matches an entry cites it as `review-checklist §N` in the review, never in
+code or a tracked doc: like every relay process file, this one is local and
+git-ignored, so a citation of it means nothing to someone with only the
+remote. `/relay-execute` does
 not work the whole list; instead the chunk brief's *Kickoff notes* name the
 entries a given chunk is most likely to trip, and the executor reads those
 before building.

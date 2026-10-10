@@ -24,9 +24,9 @@ Last review: none yet.
 `/relay-execute` creates `chunk/<id>` from the integration branch, opens a
 draft pull request, sets `executing`, updates `Units committed` per unit, and
 sets `awaiting review` when its report lands; `/relay-next` reviews that pull
-request on its branch, cuts the next chunk, and squash-merges. While a chunk
-pull request is open, the copy of this file on its head branch is the
-authoritative handoff.)
+request on its branch, cuts the next chunk, and squash-merges. This file is
+local and git-ignored: there is one copy, whatever branch is checked out, and
+every relay skill edits it in place without committing it.)
 
 ## Follow-ups not yet scheduled
 

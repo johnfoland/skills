@@ -2,7 +2,10 @@
 
 The registry for work larger than one already-designed chunk. A project turns
 an idea into settled authority and an ordered delivery plan; `/relay-next`
-turns that plan into chunk briefs, and `/relay-execute` builds them.
+turns that plan into chunk briefs, and `/relay-execute` builds them. Like every
+relay process file, this directory is local and git-ignored; what a project
+settles reaches the repository through the authority docs and the decision
+log.
 
 The routing header has a fixed shape. `/relay-project` owns both lines, and
 `/relay-next` reads `Active project`.

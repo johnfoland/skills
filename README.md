@@ -19,10 +19,13 @@ Agent skills I use with Claude Code and Codex, written to work for anyone.
 
 The `relay-*` skills build a repository in chunks: small, fully specified
 briefs that fresh agent sessions pick up, build, review, and merge. Sessions
-hand work to each other only through files in the repo (a status file, the
-chunk briefs, a decision log, and review and brief checklists that grow with
-every mistake a review catches), so any session can resume from a cold start
-and every change arrives through a reviewed pull request.
+hand work to each other through process files (a status file, the chunk
+briefs, project records, and review and brief checklists that grow with every
+mistake a review catches) and the pull requests, so any session can resume
+from a cold start and every change arrives through a reviewed pull request.
+The process files live in a git-ignored `.relay/` directory and are never
+committed: the repository keeps only the product, its authority docs, and its
+decision log, and each pull request carries its chunk's report and review.
 
 | Skill | What it does |
 |---|---|
@@ -38,8 +41,9 @@ repo tracks its roadmap in GitHub Issues, issues as the source of ideas and
 the home of follow-ups. Run `relay-setup` once per repo (it runs
 `instructions-setup` first if the baseline is missing). It writes a **Relay
 workflow** section into the repo's AGENTS.md with the settings the other
-skills read (branches, the gate command, CI, where each file lives) and
-scaffolds the process files. Then alternate `/relay-next` and `/relay-execute`
+skills read (branches, the gate command, CI, where each file lives),
+git-ignores `.relay/`, and scaffolds the process files there. In a repo that
+already commits them, it moves them out of git. Then alternate `/relay-next` and `/relay-execute`
 in fresh sessions, with `/relay-project` for anything bigger than one chunk and
 `/relay-release` to cut a version.
 

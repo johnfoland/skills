@@ -30,7 +30,9 @@ section, before anything else. Below:
   versioning rules (a doc, or plain SemVer), what publishes a release, and,
   for hand-cut releases, the first version, any docs snapshot list, and any
   artifact checks.
-- The status file is `docs/status.md` unless the settings map it elsewhere.
+- The status file is `.relay/status.md` unless the settings map it elsewhere.
+  It is local and git-ignored: one copy, in the main working tree, edited in
+  place and never committed.
 
 The invocation may carry an expected version. It is an assertion to verify,
 not the source of the version.
@@ -104,8 +106,8 @@ heading is a release-note edit and must be corrected before continuing.
 If the *Releases* section lists a docs snapshot, create `docs/releases/<tag>/`
 and copy exactly the listed files into it, without editing the copies. The list
 is deliberate: never replace it with a recursive copy of the docs directory.
-Live process files (the status file, chunk briefs, projects, checklists) and
-earlier snapshots are never part of it. Compare each copy with its source,
+The relay's process files are not in the repository, and earlier snapshots are
+never part of it. Compare each copy with its source,
 inspect `du -sh` and `git diff --stat`, and stop if the snapshot contains
 anything outside the list. Compare its size with the preceding snapshot when
 one exists; stop on unexplained growth, and always stop past 10 MiB.
@@ -248,7 +250,9 @@ before acting.
 - A source defect, bad notes, or a packaging or workflow defect is not an
   infrastructure retry. Fix it through `<integration>` like any other change
   and release the next PATCH. Record in the status file that the failed tag
-  has no published release, so nobody later mistakes it for one.
+  has no published release, and say so in the next release's notes (a
+  changelog entry, or the release pull request's body under release-please),
+  so nobody later mistakes it for one.
 
 Stop and report the tag, commit, failing job, whether a draft or published
 release exists, and the exact recovery chosen. Never rerun blindly, and never
@@ -256,8 +260,8 @@ change a branch in the hope that a workflow tied to the old tag will see it.
 
 ## E. Report
 
-Update the status file with the release through a `plan/<slug>` pull request
-if the repo records releases there. Report the version and why, the pull
+Update the status file with the release if the repo records releases there;
+it is local, so this needs no pull request. Report the version and why, the pull
 requests involved (preparation and release for hand-cut, the release pull
 request and any commit overrides for release-please), the release commit and
 tag, the workflow run URL if any, published assets or registry versions and the

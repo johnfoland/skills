@@ -1,7 +1,7 @@
 ## Relay workflow
 
 Work in this repository is built by fresh agent sessions that hand it to one
-another through the files below, using the relay skills:
+another through local process files and pull requests, using the relay skills:
 
 - `/relay-project` shapes an idea into settled design and an ordered delivery
   plan, and closes the project when its work is accepted.
@@ -15,6 +15,16 @@ another through the files below, using the relay skills:
 Code reaches the integration branch only through a chunk pull request, so every
 change gets the executor's test discipline and a CI run. The status file is the
 handoff between sessions: run each skill in a fresh session.
+
+The process files (status, chunk briefs, projects, and the two checklists)
+live in `.relay/`, which git ignores: they are never committed, and there is
+one copy whatever branch is checked out. A session in a linked worktree uses
+the main working tree's `.relay/`. Never run `git clean -x` or `-X`: it
+deletes them, and nothing else holds a copy. A chunk's remote record is its
+pull request, whose body carries the executor's report and whose comments
+carry the review. Tracked files (code, docs, the decision log, the changelog,
+pull request titles) cite authority sections, decision IDs, issues, and pull
+requests, never a chunk ID, a review finding, or a checklist entry.
 
 When code and an authority doc disagree, one of them is wrong: fix it and say
 which. A decided entry in the decision log is not re-litigated; where the docs
@@ -36,9 +46,9 @@ said it, and cite the entry at the code site.
   request's title is a Conventional Commit for the chunk's user-visible
   effect, and nobody edits the changelog by hand. Unit commits on a chunk
   branch keep their relay titles; only the squash commit reaches
-  `<integration>`. | hand-cut, as *Releases* describes: behavior-bearing unit
-  commits carry their changelog entries, and `/relay-release` cuts versions. |
-  none>.
+  `<integration>`, titled without the chunk ID. | hand-cut, as *Releases*
+  describes: behavior-bearing unit commits carry their changelog entries, and
+  `/relay-release` cuts versions. | none>.
 - **Issues:** <GitHub Issues, as *Roadmap* describes: review follow-ups and
   ideas are filed as issues, a project or maintenance chunk may start from
   one, and the pull request that finishes it closes it. | none: follow-ups
@@ -46,12 +56,12 @@ said it, and cite the entry at the code site.
 - **Authority:** <the docs that define behavior, in order, e.g.
   `docs/spec.md`, then `docs/design.md`; `docs/README.md` gives the reading
   order. | `README.md` and the code's own documentation>.
-- **Status:** `docs/status.md`
-- **Chunks:** `docs/chunks/<ID>.md`
+- **Status:** `.relay/status.md` (local)
+- **Chunks:** `.relay/chunks/<ID>.md` (local)
 - **Decision log:** `docs/decisions.md`, entries cited as `(DEC-n)`
-- **Review checklist:** `docs/review-checklist.md`
-- **Brief checklist:** `docs/brief-checklist.md`
-- **Projects:** `docs/projects/` (`index.md`, `template.md`, one
+- **Review checklist:** `.relay/review-checklist.md` (local)
+- **Brief checklist:** `.relay/brief-checklist.md` (local)
+- **Projects:** `.relay/projects/` (local; `index.md`, `template.md`, one
   `P####-slug.md` per project)
 - **Tools:** `tools/`, review aids run by hand, outside the gate and the build
 - **Review extras:** <none | repo-specific checks every review runs>.

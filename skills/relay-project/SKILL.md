@@ -26,10 +26,18 @@ written by `relay-setup`. If there is none, stop and suggest running
 - **Issues** says whether the repo tracks ideas and follow-ups as GitHub
   issues.
 - The status file, decision log, and projects directory are written at their
-  default paths: `docs/status.md`, `docs/decisions.md` (entries cited as
-  `DEC-n`), and `docs/projects/` (holding `index.md`, `template.md`, and one
+  default paths: `.relay/status.md`, `docs/decisions.md` (entries cited as
+  `DEC-n`), and `.relay/projects/` (holding `index.md`, `template.md`, and one
   `P####-slug.md` per project). When the settings map any of them elsewhere,
   or give the decision log another ID prefix, use the mapped path and prefix.
+
+The status file and the projects directory are local and git-ignored: one
+copy, in the main working tree (the first path `git worktree list` prints),
+whatever branch is checked out, edited in place and never committed. What a
+project settles reaches the repository only through the tracked authority
+docs and decision log. Tracked files, issue comments, and pull request titles
+never cite a project ID, a chunk ID, or the project file: someone with only
+the remote cannot follow them.
 
 The invocation may carry an idea, an issue (`#21`), a project ID, or an
 instruction such as `activate P0002`, `close P0002`, or
@@ -81,8 +89,9 @@ For a new project:
 3. State the problem and the observable outcome before listing work. Record
    explicit non-goals so an adjacent idea cannot quietly expand the project.
    Link the issues the project comes from or absorbs in its problem section,
-   and comment on each with a link to the project file, so the issue shows
-   where the work went.
+   and comment on each with a short summary of the planned outcome (the
+   project file is not in the repository, so do not link it), so the issue
+   shows where the work went.
 
 Several projects may be `shaping` or `ready`; exactly one may be `active`.
 Resume by the ID given, otherwise by the rule under **Settings**. Never infer
@@ -109,7 +118,8 @@ that the newest file is the intended one.
    stored or emitted data, or an implementation boundary two callers must
    share. Use the next unused ID after the greatest existing one, not merely
    the one after the last entry in the file (in a table-format log, put the
-   row inside the table). Say `Added during project P####`, update every doc
+   row inside the table). Say when it was added (`Added YYYY-MM-DD`), never
+   the project ID: the log is tracked. Update every doc
    that should carry the rule, and cite the decision there. For an
    intentional change to a decided entry, follow the decision log's reopening
    procedure; never allocate a replacement ID to disguise it. Purely local
@@ -176,8 +186,9 @@ permission to cut a release.
 
 Set the project and its index row to `complete`, record the completion date and
 accepted chunk IDs, and clear `Active project` to `—`. Close the issues the
-project came from, each with a comment linking the project file. The file and
-chunk ledger remain as history.
+project came from, each with a comment summarizing the outcome and naming the
+pull requests that delivered it. The file and chunk ledger remain, locally, as
+history.
 
 `abandoned` is the other terminal state. Record why, which design changes (if
 any) remain authoritative, and where unfinished work went (with **Issues** on,
@@ -187,12 +198,14 @@ tidy: finish or explicitly rework that chunk first.
 
 ## Ending the session
 
-Before committing, re-read the index row, the project metadata, every changed
+Before finishing, re-read the index row, the project metadata, every changed
 authority section, and any decision-log entry as one chain. Run the repository's
 docs or link checks if it has them; this role does not run the gate for
-docs-only work. Commit only the design and process files in scope, and land
-them through a `plan/<slug>` pull request into `<integration>`: wait for its
-CI, self-review the diff, and squash-merge it.
+docs-only work. Commit only the tracked design files in scope (authority docs,
+the decision log, AGENTS.md, a docs index), and land them through a
+`plan/<slug>` pull request into `<integration>`: wait for its CI, self-review
+the diff, and squash-merge it. A session that changed only the project file
+and the index has nothing to commit.
 
 Report the project ID and state, the design decisions and decision-log entries
 that landed, the authority sections changed, the next delivery item, and any
