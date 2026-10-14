@@ -9,7 +9,6 @@ Agent skills I use with Claude Code and Codex, written to work for anyone.
 
 | Skill | What it does |
 |---|---|
-| [`chezmoi-edit`](skills/chezmoi-edit/SKILL.md) | Edit chezmoi-managed dotfiles through `chezmoi edit --apply` with a scripted editor you can dry-run first, with or without autoCommit/autoPush |
 | [`interview`](skills/interview/SKILL.md) | Interview the user through the harness's structured question tool before acting on anything that leaves room to guess |
 | [`pr-body-md`](skills/pr-body-md/SKILL.md) | Write the body for a PR being opened, from the branch's commits, diff, and changelog or release notes |
 
@@ -18,6 +17,12 @@ Agent skills I use with Claude Code and Codex, written to work for anyone.
 The relay workflow, which builds a repository in chunks through fresh agent
 sessions, moved to its own plugin for Claude Code and Codex:
 [johnfoland/relay](https://github.com/johnfoland/relay).
+
+### Dotfile edits
+
+`chezmoi-edit` is retired: editing chezmoi-managed dotfiles is now the job of
+the agent skill that ships with
+[chocs-cat/cheztui](https://github.com/chocs-cat/cheztui).
 
 ## Layout
 
